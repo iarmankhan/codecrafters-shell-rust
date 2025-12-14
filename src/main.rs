@@ -1,30 +1,13 @@
+mod utils;
+
+use crate::utils::{
+    check_if_builtin_command, check_input_for_command, get_args_from_command, get_command_and_args,
+};
 use is_executable::IsExecutable;
 use std::env;
 use std::io::{self, Write};
 use std::path::PathBuf;
 use std::process::Command;
-
-fn check_input_for_command(input: &str, command: &str) -> bool {
-    input.trim().starts_with(command)
-}
-
-fn get_command_and_args(input: &str) -> (&str, Vec<&str>) {
-    let parts: Vec<&str> = input.split_whitespace().collect();
-    let (command, args) = parts.split_first().unwrap();
-
-    (command, args.to_vec())
-}
-
-fn get_args_from_command(command: &str) -> Vec<&str> {
-    let (_, args) = get_command_and_args(command);
-    args
-}
-
-const BUILT_IN_COMMANDS: [&str; 3] = ["type", "echo", "exit"];
-
-fn check_if_builtin_command(command: &str) -> bool {
-    BUILT_IN_COMMANDS.contains(&command)
-}
 
 fn get_command_path(command: &str) -> Option<PathBuf> {
     let path = env::var("PATH").unwrap_or_default();
@@ -48,6 +31,10 @@ fn shell() {
 
     match io::stdin().read_line(&mut input) {
         Ok(_) => match input.trim() {
+            "pwd" => match env::current_dir() {
+                Ok(path) => println!("{}", path.display()),
+                Err(e) => eprintln!("error getting current directory: {}", e),
+            },
             "exit" => {
                 std::process::exit(0);
             }

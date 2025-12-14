@@ -1,5 +1,18 @@
 use std::io::{self, Write};
 
+fn check_input_for_command(input: &str, command: &str) -> bool {
+    input.trim().starts_with(command)
+}
+
+fn get_args_from_command(command: &str) -> Vec<&str> {
+    let parts: Vec<&str> = command.split_whitespace().collect();
+    let (_, args) = parts.split_first().unwrap();
+
+    args.to_vec()
+}
+
+const BUILT_IN_COMMANDS: [&str; 3] = ["type", "echo", "exit"];
+
 fn shell() {
     print!("$ ");
     io::stdout().flush().unwrap();
@@ -11,19 +24,28 @@ fn shell() {
             "exit" => {
                 std::process::exit(0);
             }
-            cmd if cmd.starts_with("echo") => {
-                // Split the command into parts to handle multiple spaces
-                let parts: Vec<&str> = cmd.split_whitespace().collect();
+            cmd if check_input_for_command(&cmd, "type") => {
+                let args = get_args_from_command(&cmd);
 
-                // Join the arguments back together with a single space, skipping the "echo" part
-                let args = parts
-                    .iter()
-                    .skip(1)
-                    .cloned()
-                    .collect::<Vec<&str>>()
-                    .join(" ");
+                if args.is_empty() {
+                    println!("invalid usage: type <command>");
+                }
 
-                // Print the arguments
+                if args.len() > 1 {
+                    println!("type: too many arguments");
+                }
+
+                for arg in args {
+                    if BUILT_IN_COMMANDS.contains(&arg) {
+                        println!("{} is a shell builtin", arg);
+                    } else {
+                        println!("{}: not found", arg);
+                    }
+                }
+            }
+            cmd if check_input_for_command(&cmd, "echo") => {
+                let args = get_args_from_command(&cmd).join(" ");
+
                 println!("{}", args);
             }
             command => {

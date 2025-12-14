@@ -12,8 +12,18 @@ fn shell() {
                 std::process::exit(0);
             }
             cmd if cmd.starts_with("echo") => {
-                // this will print everything after "echo "
-                let args = cmd[4..].trim();
+                // Split the command into parts to handle multiple spaces
+                let parts: Vec<&str> = cmd.split_whitespace().collect();
+
+                // Join the arguments back together with a single space, skipping the "echo" part
+                let args = parts
+                    .iter()
+                    .skip(1)
+                    .cloned()
+                    .collect::<Vec<&str>>()
+                    .join(" ");
+
+                // Print the arguments
                 println!("{}", args);
             }
             command => {

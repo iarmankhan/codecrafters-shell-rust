@@ -69,6 +69,25 @@ fn shell() {
 
                 println!("{}", args);
             }
+            cmd if check_input_for_command(&cmd, "cd") => {
+                let args = get_args_from_command(&cmd);
+
+                let path = if args.is_empty() {
+                    env::home_dir().unwrap_or_else(|| PathBuf::from("/"))
+                } else {
+                    PathBuf::from(args[0])
+                };
+
+                // Check if the path exists and is a directory
+                if !path.exists() || !path.is_dir() {
+                    println!("cd: {}: No such file or directory", path.display());
+                    return;
+                }
+
+                if let Err(e) = env::set_current_dir(&path) {
+                    println!("cd: {}: {}", path.display(), e);
+                }
+            }
             cmd => {
                 let (command, args) = get_command_and_args(&cmd);
 

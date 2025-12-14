@@ -19,3 +19,7 @@ pub fn get_args_from_command(command: &str) -> Vec<&str> {
     let (_, args) = get_command_and_args(command);
     args
 }
+
+pub fn change_working_directory(path: &std::path::Path) -> Result<(), std::io::Error> {
+    std::env::set_current_dir(path)
+}

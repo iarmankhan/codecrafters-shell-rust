@@ -1,7 +1,8 @@
 mod utils;
 
 use crate::utils::{
-    check_if_builtin_command, check_input_for_command, get_args_from_command, get_command_and_args,
+    change_working_directory, check_if_builtin_command, check_input_for_command,
+    get_args_from_command, get_command_and_args,
 };
 use is_executable::IsExecutable;
 use std::env;
@@ -72,11 +73,21 @@ fn shell() {
             cmd if check_input_for_command(&cmd, "cd") => {
                 let args = get_args_from_command(&cmd);
 
+                let home = env::home_dir().unwrap_or_else(|| PathBuf::from("/"));
+
                 let path = if args.is_empty() {
-                    env::home_dir().unwrap_or_else(|| PathBuf::from("/"))
+                    home.clone()
                 } else {
                     PathBuf::from(args[0])
                 };
+
+                // Handle special case for "~"
+                if path.display().to_string() == "~".to_string() {
+                    change_working_directory(&home).unwrap_or_else(|e| {
+                        println!("cd: {}: {}", home.display(), e);
+                    });
+                    return;
+                }
 
                 // Check if the path exists and is a directory
                 if !path.exists() || !path.is_dir() {
@@ -84,9 +95,9 @@ fn shell() {
                     return;
                 }
 
-                if let Err(e) = env::set_current_dir(&path) {
+                change_working_directory(&path).unwrap_or_else(|e| {
                     println!("cd: {}: {}", path.display(), e);
-                }
+                });
             }
             cmd => {
                 let (command, args) = get_command_and_args(&cmd);

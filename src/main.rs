@@ -92,7 +92,7 @@ fn shell() {
                     return;
                 }
 
-                let output = Command::new(command_path.unwrap()).args(args).output();
+                let output = Command::new(command).args(args).output();
 
                 match output {
                     Ok(output) => {

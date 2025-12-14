@@ -71,8 +71,8 @@ fn shell() {
                     return;
                 }
 
-                if let Some(_) = get_command_path(command) {
-                    println!("{} is /usr/bin/{}", command, command);
+                if let Some(path) = get_command_path(command) {
+                    println!("{} is {}", command, path.display());
                 } else {
                     println!("{} not found", command);
                 }

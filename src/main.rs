@@ -1,6 +1,6 @@
 use std::io::{self, Write};
 
-fn main() {
+fn shell() {
     print!("$ ");
     io::stdout().flush().unwrap();
 
@@ -11,5 +11,11 @@ fn main() {
             println!("{}: command not found", input.trim())
         }
         Err(error) => println!("error: {error}"),
+    }
+}
+
+fn main() {
+    loop {
+        shell();
     }
 }

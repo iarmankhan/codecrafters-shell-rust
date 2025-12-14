@@ -11,6 +11,11 @@ fn shell() {
             "exit" => {
                 std::process::exit(0);
             }
+            cmd if cmd.starts_with("echo") => {
+                // this will print everything after "echo "
+                let args = cmd[4..].trim();
+                println!("{}", args);
+            }
             command => {
                 println!("{}: command not found", command)
             }

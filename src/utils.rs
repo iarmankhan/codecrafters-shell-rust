@@ -38,6 +38,28 @@ fn parse_args_with_quotes(x: &str) -> Vec<String> {
             }
             i += 2;
             continue;
+        } else if c == '\\' && in_double_quotes {
+            // In double quotes, only certain characters are escaped
+            if let Some(next_char) = trimmed.chars().nth(i + 1) {
+                match next_char {
+                    '"' | '\\' => {
+                        current_word.push(next_char);
+                        i += 2;
+                        continue;
+                    }
+                    _ => {
+                        // Take the backslash literally
+                        current_word.push(c);
+                        i += 1;
+                        continue;
+                    }
+                }
+            } else {
+                // Backslash at end of string, take literally
+                current_word.push(c);
+                i += 1;
+                continue;
+            }
         }
 
         // If character is a double quote, toggle in_double_quotes

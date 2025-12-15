@@ -13,14 +13,20 @@ fn parse_args_with_quotes(x: &str) -> Vec<String> {
 
     let mut current_word = String::new();
 
+    let n = trimmed.len();
+    let mut i = 0;
+
     // Go through each character
-    for (i, c) in trimmed.chars().enumerate() {
+    while i < n {
+        let c = trimmed.chars().nth(i).unwrap();
+
         // Handle escape character
-        if c == '\\' {
+        if c == '\\' && !in_double_quotes && !in_single_quotes {
             // Get the next character if any
             if let Some(next_char) = trimmed.chars().nth(i + 1) {
                 current_word.push(next_char);
             }
+            i += 2;
             continue;
         }
 
@@ -28,6 +34,7 @@ fn parse_args_with_quotes(x: &str) -> Vec<String> {
         if c == '"' {
             in_double_quotes = !in_double_quotes;
             // Do not include the quote character itself
+            i += 1;
             continue;
         }
 
@@ -36,10 +43,12 @@ fn parse_args_with_quotes(x: &str) -> Vec<String> {
             in_single_quotes = !in_single_quotes;
 
             // Do not include the quote character itself
+            i += 1;
             continue;
         } else if c == '\'' && in_double_quotes {
             // Inside double quotes, single quotes are literal
             current_word.push(c);
+            i += 1;
             continue;
         }
 
@@ -53,6 +62,7 @@ fn parse_args_with_quotes(x: &str) -> Vec<String> {
             // Append character to current word (inside quotes, whitespace is preserved)
             current_word.push(c);
         }
+        i += 1;
     }
 
     if !current_word.is_empty() {

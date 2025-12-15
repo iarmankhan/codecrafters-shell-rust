@@ -14,7 +14,16 @@ fn parse_args_with_quotes(x: &str) -> Vec<String> {
     let mut current_word = String::new();
 
     // Go through each character
-    for c in trimmed.chars() {
+    for (i, c) in trimmed.chars().enumerate() {
+        // Handle escape character
+        if c == '\\' {
+            // Get the next character if any
+            if let Some(next_char) = trimmed.chars().nth(i + 1) {
+                current_word.push(next_char);
+            }
+            continue;
+        }
+
         // If character is a double quote, toggle in_double_quotes
         if c == '"' {
             in_double_quotes = !in_double_quotes;

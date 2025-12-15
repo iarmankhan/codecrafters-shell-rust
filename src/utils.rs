@@ -28,6 +28,16 @@ fn parse_args_with_quotes(x: &str) -> Vec<String> {
             }
             i += 2;
             continue;
+        } else if c == '\\' && in_single_quotes {
+            // Take the backslash literally
+            current_word.push(c);
+
+            // take the next character literally
+            if let Some(next_char) = trimmed.chars().nth(i + 1) {
+                current_word.push(next_char);
+            }
+            i += 2;
+            continue;
         }
 
         // If character is a double quote, toggle in_double_quotes

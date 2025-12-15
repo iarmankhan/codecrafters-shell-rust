@@ -4,26 +4,38 @@ pub fn check_if_builtin_command(command: &str) -> bool {
     BUILT_IN_COMMANDS.contains(&command)
 }
 
-fn parse_args_single_quote(x: &str) -> Vec<String> {
+fn parse_args_with_quotes(x: &str) -> Vec<String> {
     let trimmed = x.trim();
 
     let mut in_single_quotes = false;
+    let mut in_double_quotes = false;
     let mut parts: Vec<String> = Vec::new();
 
     let mut current_word = String::new();
 
     // Go through each character
     for c in trimmed.chars() {
-        // If character is a single quote, toggle in_single_quotes
-        if c == '\'' {
-            in_single_quotes = !in_single_quotes;
-
+        // If character is a double quote, toggle in_double_quotes
+        if c == '"' {
+            in_double_quotes = !in_double_quotes;
             // Do not include the quote character itself
             continue;
         }
 
-        // If character is a space and not in single quotes, split here
-        if c.is_whitespace() && !in_single_quotes {
+        // If character is a single quote & not in double quotes, toggle in_single_quotes
+        if c == '\'' && !in_double_quotes {
+            in_single_quotes = !in_single_quotes;
+
+            // Do not include the quote character itself
+            continue;
+        } else if c == '\'' && in_double_quotes {
+            // Inside double quotes, single quotes are literal
+            current_word.push(c);
+            continue;
+        }
+
+        // If character is a space and not in single quotes or double quotes, split here
+        if c.is_whitespace() && !in_single_quotes && !in_double_quotes {
             // Boundary outside quotes; flush if non-empty
             if !current_word.is_empty() {
                 parts.push(std::mem::take(&mut current_word));
@@ -57,7 +69,7 @@ pub fn get_command_and_args(input: &str) -> (&str, Vec<String>) {
     let args = if raw_args.is_empty() {
         Vec::new()
     } else {
-        parse_args_single_quote(raw_args)
+        parse_args_with_quotes(raw_args)
     };
 
     (command, args)

@@ -31,7 +31,7 @@ fn shell() {
         Ok(_) => {
             let (cmd, args) = get_command_and_args(&input.trim());
 
-            match cmd {
+            match cmd.as_str() {
                 "pwd" => match env::current_dir() {
                     Ok(path) => println!("{}", path.display()),
                     Err(e) => eprintln!("error getting current directory: {}", e),
